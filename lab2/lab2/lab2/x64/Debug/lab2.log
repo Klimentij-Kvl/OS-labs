@@ -1,0 +1,8 @@
+﻿  lab2.cpp
+F:\!!!!important\OS\lab2\lab2\lab2\lab2.cpp(12,13): warning C4311: 'type cast': pointer truncation from 'LPVOID' to 'int'
+F:\!!!!important\OS\lab2\lab2\lab2\lab2.cpp(12,13): warning C4302: 'type cast': truncation from 'LPVOID' to 'int'
+F:\!!!!important\OS\lab2\lab2\lab2\lab2.cpp(32,13): warning C4311: 'type cast': pointer truncation from 'LPVOID' to 'int'
+F:\!!!!important\OS\lab2\lab2\lab2\lab2.cpp(32,13): warning C4302: 'type cast': truncation from 'LPVOID' to 'int'
+F:\!!!!important\OS\lab2\lab2\lab2\lab2.cpp(62,47): warning C4312: 'type cast': conversion from 'int' to 'void *' of greater size
+F:\!!!!important\OS\lab2\lab2\lab2\lab2.cpp(63,47): warning C4312: 'type cast': conversion from 'int' to 'void *' of greater size
+  lab2.vcxproj -> F:\!!!!important\OS\lab2\lab2\x64\Debug\lab2.exe
