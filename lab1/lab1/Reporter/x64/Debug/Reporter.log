@@ -1,0 +1,3 @@
+﻿  Reporter.cpp
+F:\!!!!important\OS\lab1\lab1\Reporter\Reporter.cpp(29,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+  Reporter.vcxproj -> F:\!!!!important\OS\lab1\lab1\x64\Debug\Reporter.exe

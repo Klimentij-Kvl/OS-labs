@@ -1,0 +1,7 @@
+Report on file Reporter.exe
+num name hours salary
+1 lol 1.1 1.65
+2 kek 2.22 3.33
+3 chebyrek 3.33 4.995
+4 prikol 4.44 6.66
+5 rzhaka 5.555 8.3325
