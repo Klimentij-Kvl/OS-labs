@@ -1,0 +1,5 @@
+﻿  lab3.cpp
+F:\!!!!important\OS-labs\lab3\lab3\lab3.cpp(16,20): warning C4311: 'type cast': pointer truncation from 'LPVOID' to 'int'
+F:\!!!!important\OS-labs\lab3\lab3\lab3.cpp(16,20): warning C4302: 'type cast': truncation from 'LPVOID' to 'int'
+F:\!!!!important\OS-labs\lab3\lab3\lab3.cpp(88,47): warning C4312: 'type cast': conversion from 'int' to 'LPVOID' of greater size
+  lab3.vcxproj -> F:\!!!!important\OS-labs\lab3\x64\Debug\lab3.exe
