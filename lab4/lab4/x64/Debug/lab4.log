@@ -1,0 +1,12 @@
+﻿  lab4.cpp
+F:\!!!!important\OS-labs\lab4\lab4\lab4.cpp(19,15): warning C4311: 'type cast': pointer truncation from 'LPVOID' to 'int'
+F:\!!!!important\OS-labs\lab4\lab4\lab4.cpp(19,15): warning C4302: 'type cast': truncation from 'LPVOID' to 'int'
+F:\!!!!important\OS-labs\lab4\lab4\lab4.cpp(47,16): warning C4311: 'type cast': pointer truncation from 'LPVOID' to 'int'
+F:\!!!!important\OS-labs\lab4\lab4\lab4.cpp(47,16): warning C4302: 'type cast': truncation from 'LPVOID' to 'int'
+F:\!!!!important\OS-labs\lab4\lab4\lab4.cpp(48,11): warning C4311: 'type cast': pointer truncation from 'LPVOID' to 'int'
+F:\!!!!important\OS-labs\lab4\lab4\lab4.cpp(48,11): warning C4302: 'type cast': truncation from 'LPVOID' to 'int'
+F:\!!!!important\OS-labs\lab4\lab4\lab4.cpp(62,59): warning C4311: 'type cast': pointer truncation from 'LPVOID' to 'int'
+F:\!!!!important\OS-labs\lab4\lab4\lab4.cpp(62,59): warning C4302: 'type cast': truncation from 'LPVOID' to 'int'
+F:\!!!!important\OS-labs\lab4\lab4\lab4.cpp(106,57): warning C4312: 'type cast': conversion from 'int' to 'LPVOID' of greater size
+F:\!!!!important\OS-labs\lab4\lab4\lab4.cpp(113,57): warning C4312: 'type cast': conversion from 'int' to 'LPVOID' of greater size
+  lab4.vcxproj -> F:\!!!!important\OS-labs\lab4\x64\Debug\lab4.exe
