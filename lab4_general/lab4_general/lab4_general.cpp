@@ -9,7 +9,7 @@ using namespace std;
 int main()
 {
     HANDLE hMutex;
-    HANDLE hSemaphore;
+    HANDLE hFull,hEmpty;
     STARTUPINFO* si;
     PROCESS_INFORMATION* pi;
     wchar_t fileName[50];
@@ -17,8 +17,11 @@ int main()
     wstring fileN;
     int recNum, receiverNum;
     cout << "Print file name and number of records: " << endl;
-    fileN = L"rofl.bin"; recNum = 5; //wcin >> fileN >> recNum; 
-    
+    wcin >> fileN >> recNum; 
+    if (recNum < 1) {
+        cout << "incorrect number of records";
+        return 1;
+    }
     wstring s = L"Sender.exe " + fileN;
     lstrcpyW(fileName, s.data());
 
@@ -27,26 +30,35 @@ int main()
     
 
     hMutex = CreateMutex(NULL, FALSE, L"SyncMutex");
-    hSemaphore = CreateSemaphore(NULL, 0, recNum, L"SyncSemaphore");
+    hFull = CreateSemaphore(NULL, 0, recNum, L"FullSemaphore");
+    hEmpty = CreateSemaphore(NULL, recNum, recNum, L"EmptySemaphore");
     if (hMutex == NULL) {
         cout << "MUTEX ERROR" << endl;
         return GetLastError();
     }
     WaitForSingleObject(hMutex, INFINITE);
     cout << "Print number of receivers: " << endl;
-    receiverNum = 3; //cin >> receiverNum;
+    cin >> receiverNum;
+    if (receiverNum < 1) {
+        cout << "incorrect number of receivers";
+        return 1;
+    }
     si = new STARTUPINFO[receiverNum];
     pi = new PROCESS_INFORMATION[receiverNum];
+    HANDLE* hProcessors = new HANDLE[receiverNum];
+    ZeroMemory(si, sizeof(STARTUPINFO)*receiverNum);
     for (int i = 0; i < receiverNum; i++) {
-        ZeroMemory(&si[i], sizeof(STARTUPINFO));
+        
         si[i].cb = sizeof(STARTUPINFO);
         if (!CreateProcess(NULL, fileName, NULL, NULL, FALSE, CREATE_NEW_CONSOLE, NULL, NULL, &si[i], &pi[i])) {
             cout << "Process " << i << " error";
             return GetLastError();
         }
+        hProcessors[i] = pi->hProcess;
     }
     Sleep(100);
-    WaitForMultipleObjects(receiverNum, &pi->hProcess, TRUE, INFINITE);
+    if (receiverNum == 1) WaitForSingleObject(hProcessors[0], INFINITE);
+    else WaitForMultipleObjects(receiverNum, hProcessors, TRUE, INFINITE);
     ifstream inBinFile;
     ofstream outBinFile;
     ReleaseMutex(hMutex);
@@ -57,8 +69,15 @@ int main()
         cout << "type your operation(exit, read):" << endl;
         cin >> userAns;
         
-        if (userAns == "exit") break;
+        if (userAns == "exit") {
+            for (int i = 0; i < receiverNum; i++) {
+                TerminateProcess(pi[i].hProcess, 1);
+                TerminateProcess(pi[i].hThread, 1);
+            }
+            break;
+        }
         else {
+            WaitForSingleObject(hFull, INFINITE);
             WaitForSingleObject(hMutex, INFINITE);
             inBinFile.open(fileN, ios::binary);
             inBinFile.read(fileElem, 20);
@@ -73,6 +92,7 @@ int main()
             outBinFile.close();
             cout << fileElem << endl;
             ReleaseMutex(hMutex);
+            ReleaseSemaphore(hEmpty, 1, NULL);
         }
     }
     
@@ -83,6 +103,7 @@ int main()
         CloseHandle(pi[i].hThread);
     }
     CloseHandle(hMutex);
-    CloseHandle(hSemaphore);
+    CloseHandle(hFull);
+    CloseHandle(hEmpty);
     inBinFile.close();
 }
