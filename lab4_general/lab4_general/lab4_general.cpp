@@ -57,7 +57,7 @@ int main()
         hProcessors[i] = pi->hProcess;
     }
     Sleep(100);
-    if (receiverNum == 1) WaitForSingleObject(hProcessors[0], INFINITE);
+    if (receiverNum == 1) WaitForSingleObject(&hProcessors, INFINITE);
     else WaitForMultipleObjects(receiverNum, hProcessors, TRUE, INFINITE);
     ifstream inBinFile;
     ofstream outBinFile;
@@ -99,8 +99,9 @@ int main()
     WaitForMultipleObjects(receiverNum, &pi->hProcess, TRUE, INFINITE);
 
     for (int i = 0; i < receiverNum; i++) {
-        CloseHandle(pi[i].hProcess);
         CloseHandle(pi[i].hThread);
+        CloseHandle(pi[i].hProcess);
+        
     }
     CloseHandle(hMutex);
     CloseHandle(hFull);
