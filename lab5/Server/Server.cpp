@@ -11,11 +11,11 @@ struct Employee {
 
 int main()
 {
-	HANDLE hProcess;
+	HANDLE hSemaphore, hMutex;
 	wchar_t commandLine[] = L"Client.exe";
-	STARTUPINFO si;
-	PROCESS_INFORMATION pi;
-	int data;
+	STARTUPINFO *si;
+	PROCESS_INFORMATION *pi;
+	int data, clientsNum, readerCount = 0;
 	char command[20];
 	DWORD dw;
 
@@ -26,11 +26,17 @@ int main()
 	cout << "Type number of employees: ";
 	cin >> empsNum;
 	emps = new Employee[empsNum];
+
 	cout << "Type your employees (num, name, hours):" << endl;
 	for (int i = 0; i < empsNum; i++) {
 		cout << i+1 << ") ";
 		cin >> emps[i].num >> emps[i].name >> emps[i].hours;
 	}
+
+	cout << "Type number of Clients:" << endl;
+	cin >> clientsNum;
+	si = new STARTUPINFO[clientsNum];
+	pi = new PROCESS_INFORMATION[clientsNum];
 
 	HANDLE hServer = CreateNamedPipe(
 		L"\\\\.\\pipe\\server_pipe",
@@ -47,15 +53,20 @@ int main()
 		return 1;
 	}
 
-	ZeroMemory(&si, sizeof(STARTUPINFO));
-	si.cb = sizeof(STARTUPINFO);
+	hSemaphore = CreateSemaphore(NULL, 1, clientsNum, L"WriteSempahore");
+	hMutex = CreateMutex(NULL, FALSE, L"SyncMutex");
 
-	if (!CreateProcess(NULL, commandLine, NULL, NULL, FALSE, CREATE_NEW_CONSOLE,
-		NULL, NULL, &si, &pi)) {
-		cout << "Process creatio failed" << endl;
-		CloseHandle(hServer);
-		return 1;
+	for (int i = 0; i < clientsNum; i++) {
+		ZeroMemory(&si[i], sizeof(STARTUPINFO));
+		si[i].cb = sizeof(STARTUPINFO);
+		if (!CreateProcess(NULL, commandLine, NULL, NULL, FALSE, CREATE_NEW_CONSOLE,
+			NULL, NULL, &si[i], &pi[i])) {
+			cout << "Process creation failed" << endl;
+			CloseHandle(hServer);
+			return 1;
+		}
 	}
+	
 
 	cout << "server is awaiting for the client..." << endl;
 	if (!ConnectNamedPipe(hServer, NULL)) {
@@ -65,13 +76,12 @@ int main()
 	}
 
 	while (true) {
-
 		if (!ReadFile(hServer, &command, sizeof(command), &dw, NULL)) {
 			cerr << "Reading from pipe error";
 			CloseHandle(hServer);
 			return 1;
 		}
-		cout << "Server get " << command << endl;
+		cout << "Server got " << command << endl;
 
 		if (strcmp(command, "exit") == 0)
 			break;
@@ -97,6 +107,41 @@ int main()
 			if (!WriteFile(hServer, &emp, sizeof(emp), &dw, NULL)) {
 				cerr << "Writing in pipe error" << endl;
 				return 1;
+			}
+		}
+		else if (strcmp(command, "write") == 0) {
+			if (!ReadFile(hServer, &data, sizeof(data), &dw, NULL)) {
+				cerr << "Reading from pipe error";
+				CloseHandle(hServer);
+				return 1;
+			}
+			int empNum;
+			bool found = false;
+			for (int i = 0; i < empsNum; i++) {
+				if (data == emps[i].num) {
+					emp = emps[i];
+					empNum = i;
+					found = true;
+				}
+			}
+
+			if (found == false) {
+				emp.num = 0; strcpy_s(emp.name, "NOT FOUND"); emp.hours = 0;
+			}
+			if (!WriteFile(hServer, &emp, sizeof(emp), &dw, NULL)) {
+				cerr << "Writing in pipe error" << endl;
+				return 1;
+			}
+
+			if (found != false) {
+				if (!ReadFile(hServer, &emp, sizeof(emp), &dw, NULL)) {
+					cerr << "Reading from pipe error";
+					CloseHandle(hServer);
+					return 1;
+				}
+				emps[empNum].num = emp.num;
+				strcpy_s(emps[empNum].name, emp.name);
+				emps[empNum].hours = emp.hours;
 			}
 		}
 	}

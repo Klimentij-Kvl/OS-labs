@@ -11,7 +11,7 @@ struct Employee {
 
 int main()
 {
-    char c;
+    char c[20];
     char command[20];
     int data;
     Employee emp;
@@ -46,10 +46,9 @@ int main()
             break;
         }
 
-        cout << "Type number of employee: ";
-        cin >> data;
-
-        if (strcmp(command, "read") == 0) {
+        else if (strcmp(command, "read") == 0) {
+            cout << "Type number of employee: ";
+            cin >> data;
             if (!WriteFile(hServer, &data, sizeof(data), &dw, NULL)) {
                 cerr << "Writing in pipe error" << endl << "Type any char to exit";
                 cin >> c;
@@ -64,8 +63,45 @@ int main()
 
             cout << "Client got this emloyee: " << emp.num << " " << emp.name
                 << " " << emp.hours << endl;
+            cout << "type any key to end reading...";
+            cin >> c;
+        }
+        else if (strcmp(command, "write") == 0) {
+            cout << "Type number of employee: ";
+            cin >> data;
+            if (!WriteFile(hServer, &data, sizeof(data), &dw, NULL)) {
+                cerr << "Writing in pipe error" << endl << "Type any char to exit";
+                cin >> c;
+                return 1;
+            }
+
+            if (!ReadFile(hServer, &emp, sizeof(emp), &dw, NULL)) {
+                cerr << "Reading from pipe error";
+                CloseHandle(hServer);
+                return 1;
+            }
+
+            cout << "Client got this emloyee: " << emp.num << " " << emp.name
+                << " " << emp.hours << endl;
+
+            cout << "Type new employee (number, name, hours): ";
+            cin >> emp.num >> emp.name >> emp.hours;
+
+            cout << "Type something to send this employee to a server: ";
+            cin >> c;
+
+            if (!WriteFile(hServer, &emp, sizeof(emp), &dw, NULL)) {
+                cerr << "Writing in pipe error" << endl << "Type any char to exit";
+                cin >> c;
+                return 1;
+            }
+
+            cout << "Type comething to end the writing: ";
+            cin >> c;
         }
     }
+
+    CloseHandle(hServer);
     cout << "Type any key to leave the program";
     cin >> c;
     return 0;
