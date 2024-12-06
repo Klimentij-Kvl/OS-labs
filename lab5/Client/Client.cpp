@@ -16,7 +16,10 @@ int main()
     int data;
     Employee emp;
     DWORD dw;
+    bool b;
 
+    HANDLE hSemaphore = OpenSemaphore(SEMAPHORE_ALL_ACCESS, FALSE, L"WriteSemaphore");
+    HANDLE hMutex = OpenMutex(MUTEX_ALL_ACCESS, FALSE, L"SyncMutex");
     HANDLE hServer = CreateFileA(
         "\\\\.\\pipe\\server_pipe",
         GENERIC_READ | GENERIC_WRITE,
@@ -36,15 +39,15 @@ int main()
     while (true) {
         cout << "Type a command(read, write or exit): ";
         cin >> command;
+        if (strcmp(command, "exit") == 0) {
+            break;
+        }
         if (!WriteFile(hServer, &command, sizeof(command), &dw, NULL)) {
             cerr << "Writing in pipe error" << endl << "Type any char to exit";
             cin >> c;
             return 1;
         }
 
-        if (strcmp(command, "exit") == 0) {
-            break;
-        }
 
         else if (strcmp(command, "read") == 0) {
             cout << "Type number of employee: ";
@@ -55,14 +58,25 @@ int main()
                 return 1;
             }
 
-            if (!ReadFile(hServer, &emp, sizeof(emp), &dw, NULL)) {
+            if (!ReadFile(hServer, &b, sizeof(bool), &dw, NULL)) {
                 cerr << "Reading from pipe error";
                 CloseHandle(hServer);
                 return 1;
             }
 
-            cout << "Client got this emloyee: " << emp.num << " " << emp.name
-                << " " << emp.hours << endl;
+            if (b == false) {
+                cout << "Employee not found" << endl;
+                continue;
+            }
+            else {
+                if (!ReadFile(hServer, &emp, sizeof(emp), &dw, NULL)) {
+                    cerr << "Reading from pipe error";
+                    CloseHandle(hServer);
+                    return 1;
+                }
+                cout << "Client got this emloyee: " << emp.num << " " << emp.name
+                    << " " << emp.hours << endl;
+            }
             cout << "type any key to end reading...";
             cin >> c;
         }
@@ -75,25 +89,35 @@ int main()
                 return 1;
             }
 
-            if (!ReadFile(hServer, &emp, sizeof(emp), &dw, NULL)) {
+            if (!ReadFile(hServer, &b, sizeof(bool), &dw, NULL)) {
                 cerr << "Reading from pipe error";
                 CloseHandle(hServer);
                 return 1;
             }
 
-            cout << "Client got this emloyee: " << emp.num << " " << emp.name
-                << " " << emp.hours << endl;
+            if (b == false) {
+                cout << "Employee not found" << endl;
+                continue;
+            }
+            else {
+                if (!ReadFile(hServer, &emp, sizeof(emp), &dw, NULL)) {
+                    cerr << "Reading from pipe error";
+                    CloseHandle(hServer);
+                    return 1;
+                }
+                cout << "Client got this emloyee: " << emp.num << " " << emp.name
+                    << " " << emp.hours << endl;
+                cout << "Type new employee (number, name, hours): ";
+                cin >> emp.num >> emp.name >> emp.hours;
 
-            cout << "Type new employee (number, name, hours): ";
-            cin >> emp.num >> emp.name >> emp.hours;
-
-            cout << "Type something to send this employee to a server: ";
-            cin >> c;
-
-            if (!WriteFile(hServer, &emp, sizeof(emp), &dw, NULL)) {
-                cerr << "Writing in pipe error" << endl << "Type any char to exit";
+                cout << "Type something to send this employee to a server: ";
                 cin >> c;
-                return 1;
+
+                if (!WriteFile(hServer, &emp, sizeof(emp), &dw, NULL)) {
+                    cerr << "Writing in pipe error" << endl << "Type any char to exit";
+                    cin >> c;
+                    return 1;
+                }
             }
 
             cout << "Type comething to end the writing: ";
