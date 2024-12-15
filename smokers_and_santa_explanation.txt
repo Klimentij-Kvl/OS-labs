@@ -1,0 +1,44 @@
+Semaphore 	tabaccoMatches(0), 	//количество табака и спичек
+			matchesPaper(0),	//количество спчиек и бумаги
+			paperTobacco(0), 	//количество бумаги и табака
+			tableEmpty(0);		//пустой ли стол
+
+void servant(){
+	while(true){
+		switch(rand() % 3) 				//взять случайный предмет
+		case 0:
+			tobaccoMatches.signal(); 	//положить табак и спички
+			break;
+		case 1:
+			matchesPaper.signal(); 		//положить спички и бумагу
+			break;
+		case 2:
+			paperTobacco.signal(); 		//положить бумагу и табак
+			break;
+		tableEmpty.wait(); 				//ждать, пока стол не станет пустым
+	}
+}
+
+void smokerPaper() {
+	while(true){
+		tobaccoMatches.wait(); 			//ждать табак и спички
+		tableEmpty.signal(); 			//освободить стол
+		smoke(); 						//свернуть и выкурить сигарету
+	}
+}
+
+void smokerTobacco()  {
+	while(true){
+		matchesPaper.wait();			//ждать спички и бумагу
+		tableEmpty.signal();			//освободить стол
+		smoke();						//свернуть и выкурить сигарету
+	}
+}
+
+void smokerMatches() {
+	while(true) {
+		paperTobacco.wait();			//ждать бумагу и табак
+		tableEmpty.signal();			//освободить стол
+		smoke();						//свернуть и выкурить сигарету
+	}
+}
